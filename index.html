@@ -1,0 +1,1777 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ДК Б6К — диаграмма Ганта</title>
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #d0d7e2;
+      --lane: #f8fafc;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f5f7fb 0%, var(--bg) 100%);
+    }
+
+    .page {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 14px;
+    }
+
+    .panel, .board {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 14px;
+      position: sticky;
+      top: 12px;
+      height: fit-content;
+      max-height: calc(100vh - 24px);
+      overflow: auto;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 20px; line-height: 1.25; }
+    .subtitle { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .kpi-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      background: #f8fafc;
+      text-align: center;
+    }
+
+    .kpi-val { font-size: 18px; font-weight: 700; }
+    .kpi-label { font-size: 11px; color: var(--muted); }
+
+    .section-title {
+      margin: 12px 0 7px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #475569;
+    }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+      color: #0369a1;
+      font-weight: 600;
+    }
+
+    .chip:disabled { opacity: .45; cursor: not-allowed; }
+
+    .current-tasks {
+      display: grid;
+      gap: 8px;
+    }
+
+    .current-task {
+      border: 1px solid var(--border);
+      border-left: 4px solid #f97316;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #fff7ed;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+    }
+
+    .current-task:hover { border-color: #fb923c; }
+    .current-task.done-tone {
+      background: #f0fdf4;
+      border-left-color: #22c55e;
+    }
+    .current-task .ct-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .current-task .ct-meta {
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .current-empty {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+
+    .do-legend { display: grid; gap: 6px; margin-top: 4px; }
+    .do-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #334155;
+    }
+    .do-item .meta { color: var(--muted); font-size: 11px; }
+
+    .badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-grid;
+      place-items: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .badge.round { border-radius: 50%; width: 20px; height: 20px; font-size: 9px; }
+    .badge.out { outline: 2px solid #a855f7; outline-offset: 1px; }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      padding: 8px;
+      border-radius: 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+
+    .details {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #f8fafc;
+      font-size: 13px;
+      min-height: 120px;
+    }
+    .details h3 { margin: 0 0 8px; font-size: 15px; }
+    .details .line { margin: 4px 0; color: #334155; }
+    .details .badge-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+    .board { padding: 12px; overflow: auto; }
+
+    .crumb-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      min-width: 980px;
+      flex-wrap: wrap;
+    }
+
+    .back-btn, .open-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .back-btn:hover, .open-btn:hover { border-color: #38bdf8; background: #f0f9ff; }
+    .back-btn:disabled, .open-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .breadcrumb button {
+      border: none;
+      background: transparent;
+      color: #0369a1;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      font-size: 13px;
+    }
+    .breadcrumb .sep { color: #94a3b8; }
+
+    .level-badge {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #075985;
+      border: 1px solid #bae6fd;
+    }
+
+    .board-title { margin-bottom: 10px; min-width: 980px; }
+    .board-title h2 { margin: 0; font-size: 18px; }
+    .board-title .meta { color: var(--muted); font-size: 13px; }
+
+    .gantt {
+      min-width: 980px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: visible;
+      background: #fff;
+    }
+
+    .gantt-head {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      border-bottom: 1px solid var(--border);
+      background: #f1f5f9;
+    }
+
+    .corner {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+    }
+
+    .months {
+      display: grid;
+      position: relative;
+      min-height: 48px;
+    }
+
+    .month {
+      padding: 8px 4px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      font-size: 12px;
+      overflow: hidden;
+    }
+    .month:last-child { border-right: none; }
+    .month b { display: block; font-size: 13px; color: #0f172a; }
+    .month span { color: var(--muted); font-size: 11px; }
+
+    .today-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-left: 2px dashed #ef4444;
+      z-index: 8;
+      pointer-events: none;
+      transform: translateX(-1px);
+    }
+    .today-line::before {
+      content: attr(data-label);
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      white-space: nowrap;
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+    .lane-track .today-line::before { display: none; }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      border-bottom: 1px solid var(--border);
+      min-height: 84px;
+      overflow: visible;
+    }
+    .lane:last-child { border-bottom: none; }
+    .lane.overview { min-height: 160px; }
+
+    .lane-label {
+      border-right: 1px solid var(--border);
+      background: var(--lane);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.3;
+    }
+    .lane.overview .lane-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 13px;
+    }
+
+    .lane-track {
+      position: relative;
+      overflow: visible;
+      background:
+        repeating-linear-gradient(
+          to right,
+          transparent 0,
+          transparent calc(100% / var(--ticks, 7) - 1px),
+          #e2e8f0 calc(100% / var(--ticks, 7) - 1px),
+          #e2e8f0 calc(100% / var(--ticks, 7))
+        );
+      min-height: inherit;
+    }
+
+    .bar {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 40px;
+      border: none;
+      color: #0f172a;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 0 16px 0 10px;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+      transition: .12s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .bar .label-short { display: inline; }
+    .bar .label-mid,
+    .bar .label-full,
+    .bar .label-note { display: none; }
+
+    .zoom-mid .bar .label-short { display: none; }
+    .zoom-mid .bar .label-mid { display: inline; }
+
+    .zoom-full .bar .label-short,
+    .zoom-full .bar .label-mid { display: none; }
+    .zoom-full .bar .label-full { display: inline; }
+    .zoom-full .bar .label-note {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      opacity: .92;
+      white-space: normal;
+      line-height: 1.2;
+      max-width: 100%;
+    }
+
+    .bar:hover {
+      overflow: visible;
+      z-index: 20;
+      filter: brightness(1.03);
+    }
+
+    .bar .hover-tip {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: calc(100% + 6px);
+      min-width: 240px;
+      max-width: 340px;
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: normal;
+      line-height: 1.35;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      pointer-events: none;
+      z-index: 80;
+    }
+
+    .bar.tip-above .hover-tip {
+      top: auto;
+      bottom: calc(100% + 6px);
+    }
+
+    .bar:hover .hover-tip { display: block; }
+
+    .bar.has-drill::after {
+      content: "⤵";
+      font-size: 11px;
+      opacity: .9;
+      margin-left: 2px;
+    }
+
+    .bar.cluster {
+      clip-path: none;
+      border-radius: 12px;
+      height: auto;
+      min-height: 44px;
+      padding: 6px 10px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
+      background: linear-gradient(180deg, #e0f2fe, #bae6fd);
+      color: #0c4a6e;
+    }
+
+    .bar.update-node {
+      clip-path: none;
+      border-radius: 14px;
+      height: auto;
+      min-height: 52px;
+      width: auto !important;
+      min-width: 52px;
+      padding: 6px 8px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: linear-gradient(180deg, #fff7ed, #fed7aa);
+      color: #9a3412;
+    }
+
+    .badge-stack { display: flex; flex-wrap: wrap; gap: 3px; max-width: 100%; }
+
+    .bar.small {
+      height: 34px;
+      font-size: 11px;
+      clip-path: none;
+      border-radius: 8px;
+      padding: 0 8px;
+    }
+
+    .bar.active { outline: 2px solid #38bdf8; z-index: 6; }
+    .bar.hidden { opacity: .12; filter: grayscale(1); pointer-events: none; }
+
+    .bar.top1 { background: linear-gradient(90deg, #38bdf8, #0ea5e9); color: #fff; }
+    .bar.top2 { background: linear-gradient(90deg, #7dd3fc, #38bdf8); color: #0c4a6e; }
+    .bar.top3 { background: linear-gradient(90deg, #c084fc, #a855f7); color: #fff; }
+    .bar.progress { background: linear-gradient(90deg, #fb923c, #f97316); color: #fff; }
+    .bar.plan { background: linear-gradient(90deg, #bae6fd, #7dd3fc); color: #0c4a6e; }
+    .bar.inner { background: linear-gradient(90deg, #93c5fd, #60a5fa); color: #0f172a; }
+
+    .bar.is-done {
+      background: #22c55e !important;
+      color: #052e16 !important;
+      box-shadow: inset 0 0 0 3px var(--legend-color, #15803d), 0 2px 8px rgba(15, 23, 42, 0.12);
+    }
+    .bar.cluster.is-done,
+    .bar.update-node.is-done,
+    .bar.small.is-done {
+      background: #22c55e !important;
+      color: #052e16 !important;
+      border: 3px solid var(--legend-color, #15803d);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    }
+
+    .do-start-badge {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 9px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,.45);
+    }
+
+    .note {
+      position: absolute;
+      font-size: 10px;
+      color: #475569;
+      line-height: 1.25;
+      max-width: 220px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    .zoom-mid .note { opacity: .85; }
+    .zoom-full .note { opacity: 1; }
+
+    .zoom-bar {
+      margin-top: 12px;
+      min-width: 980px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .zoom-bar h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .zoom-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .zoom-presets button {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .zoom-presets button.active {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+      color: #0369a1;
+      font-weight: 700;
+    }
+
+    .zoom-controls {
+      display: grid;
+      grid-template-columns: 120px 1fr 160px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .zoom-controls label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .zoom-controls input[type="range"] {
+      width: 100%;
+      accent-color: #0284c7;
+    }
+
+    .zoom-readout {
+      font-size: 12px;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .rule-box {
+      margin-top: 8px;
+      border: 1px dashed #93c5fd;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 1200px) {
+      .page { grid-template-columns: 1fr; }
+      .panel { position: static; max-height: none; }
+      .zoom-controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <aside class="panel">
+      <h1>ДК Б6К — Гант</h1>
+      <p class="subtitle">
+        Бар ДО = старт работ. «Подготовка» и «Актуализация» — общие стримы с накоплением бейджей ДО.
+      </p>
+
+      <div class="kpi">
+        <div class="kpi-card"><div class="kpi-val">11</div><div class="kpi-label">ДО</div></div>
+        <div class="kpi-card"><div class="kpi-val" id="kpiStreams">3</div><div class="kpi-label">стрима</div></div>
+        <div class="kpi-card"><div class="kpi-val" id="kpiLevel">1</div><div class="kpi-label">уровень</div></div>
+      </div>
+
+      <div class="section-title">Текущие задачи</div>
+      <div class="current-tasks" id="currentTasks"></div>
+
+      <div class="section-title">Легенда ДО</div>
+      <div class="do-legend" id="doLegend"></div>
+
+      <div class="rule-box">
+        <b>Правило бейджей</b><br>
+        1) Старт ДО → 2) через ~0.4 мес в подготовке → 3) после проработки в актуализации.
+      </div>
+
+      <div class="section-title">Волна</div>
+      <div class="chips" id="waveFilters"></div>
+      <div class="section-title">Стрим</div>
+      <div class="chips" id="streamFilters"></div>
+      <div class="section-title">Охват</div>
+      <div class="chips" id="scopeFilters"></div>
+
+      <div class="hint" id="hint">Наведите на плашку — полный текст. Зум расширяет подписи.</div>
+      <div class="details" id="details">
+        <h3>Детали задачи</h3>
+        <div class="line">Кликните по блоку на диаграмме Ганта.</div>
+      </div>
+    </aside>
+
+    <section class="board">
+      <div class="crumb-row">
+        <button class="back-btn" id="backBtn" disabled>← Назад</button>
+        <button class="open-btn" id="openBtn" disabled>Открыть внутренний Гант</button>
+        <div class="breadcrumb" id="breadcrumb"></div>
+        <span class="level-badge" id="levelBadge">Уровень 1 · Обзор</span>
+      </div>
+
+      <div class="board-title">
+        <h2 id="boardTitle">ДК на сборку, создание, расчёт и актуализацию моделей пласта</h2>
+        <div class="meta" id="boardMeta">Б6К · 3 FTE · июнь–декабрь 2026</div>
+      </div>
+
+      <div class="gantt" id="gantt">
+        <div class="gantt-head">
+          <div class="corner" id="cornerLabel">Стрим / месяц</div>
+          <div class="months" id="months"></div>
+        </div>
+        <div id="lanes"></div>
+      </div>
+
+      <div class="zoom-bar">
+        <h3>Масштаб времени</h3>
+        <div class="zoom-presets" id="zoomPresets"></div>
+        <div class="zoom-controls">
+          <label for="zoomSlider">Ширина окна</label>
+          <input id="zoomSlider" type="range" min="1" max="7" step="0.25" value="7" />
+          <div class="zoom-readout" id="zoomReadout">Весь период</div>
+        </div>
+        <div class="zoom-controls" style="margin-top:8px;">
+          <label for="panSlider">Сдвиг окна</label>
+          <input id="panSlider" type="range" min="0" max="6" step="0.05" value="0" />
+          <div class="zoom-readout" id="panReadout">Июнь → Декабрь</div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const months = [
+      { key: "jun", label: "Июнь", short: "Июн", q: "Q2" },
+      { key: "jul", label: "Июль", short: "Июл", q: "Q3" },
+      { key: "aug", label: "Август", short: "Авг", q: "Q3" },
+      { key: "sep", label: "Сентябрь", short: "Сен", q: "Q3" },
+      { key: "oct", label: "Октябрь", short: "Окт", q: "Q4" },
+      { key: "nov", label: "Ноябрь", short: "Ноя", q: "Q4" },
+      { key: "dec", label: "Декабрь", short: "Дек", q: "Q4" }
+    ];
+
+    const DOS = [
+      { id: "spd", name: "СПД", code: "C", color: "#f97316", wave: "Top 2", scope: "В орг-объеме", start: 0.35, end: 1.15, note: "Ранний старт СПД." },
+      {
+        id: "nng", name: "ННГ", code: "N", color: "#0ea5e9", wave: "Top 1", scope: "В орг-объеме",
+        start: 0.9, end: 2.15,
+        note: "Факт: провалидированы данные, подготовлены модели всех м-р/пластов, выполнены многовариантные расчёты кандидатов в ППД."
+      },
+      {
+        id: "sn-mng", name: "СН-МНГ", code: "Mr", color: "#2563eb", wave: "Top 1", scope: "В орг-объеме",
+        // до 2-й недели сентября (~14.09)
+        start: 1.7, end: 3.43,
+        note: "Факт: модели на 80% добычи + валидация карт/НГЗ/PVT + согласование с ИТС (карты с 01.2025). Далее: обновить модели и провалидировать остаток (+3 FTE). Финиш подготовки моделей — 2-я неделя сентября."
+      },
+      // Последовательность моделей: Томскнефть → Хантос → Восток → Оренбург
+      {
+        id: "tn-vnk", name: "ТН-ВНК", code: "T", color: "#e11d48", wave: "Top 2", scope: "В орг-объеме",
+        // модели 1,5 мес после СН-МНГ
+        start: 3.43, end: 4.93,
+        note: "Подготовка моделей 1,5 мес. Вне КСПД — ручная подготовка данных (отдельный стрим 1 мес)."
+      },
+      {
+        id: "khantos", name: "Хантос", code: "X", color: "#6b7280", wave: "Top 1", scope: "В орг-объеме",
+        start: 4.93, end: 5.65,
+        note: "Подготовка моделей после ТН-ВНК."
+      },
+      {
+        id: "vostok", name: "Восток", code: "B", color: "#22c55e", wave: "Top 2", scope: "В орг-объеме",
+        start: 5.65, end: 6.35,
+        note: "Подготовка моделей после Хантос."
+      },
+      {
+        id: "orenburg", name: "Оренбург", code: "O", color: "#dc2626", wave: "Top 2", scope: "В орг-объеме",
+        // 1 неделя
+        start: 6.35, end: 6.58,
+        note: "Только нефтяная залежь Царичанско-Филатовское м-е."
+      },
+      { id: "yamal", name: "Ямал", code: "Я", color: "#a855f7", wave: "Top 3", scope: "Вне орг-объема Б6К", start: 5.2, end: 5.85, note: "Вне орг-объема Б6К." },
+      { id: "messoyaha", name: "Мессояха", code: "М", color: "#9333ea", wave: "Top 3", scope: "Вне орг-объема Б6К", start: 5.9, end: 6.35, note: "Вне орг-объема Б6К." },
+      { id: "zapolyarye", name: "Заполярье", code: "З", color: "#7e22ce", wave: "Top 3", scope: "Вне орг-объема Б6К", start: 6.35, end: 6.7, note: "Вне орг-объема Б6К." },
+      {
+        id: "orenburg-other", name: "Оренбург прочие", code: "O+", color: "#be185d", wave: "Top 3", scope: "Вне орг-объема Б6К",
+        start: 6.55, end: 6.9,
+        note: "Остальные месторождения Оренбурга (кроме Царичанско-Филатовского) — контур Top 3."
+      }
+    ];
+
+    // Фактические / ближайшие задачи (для интеграции в ДК)
+    const FACT_NNG = [
+      {
+        id: "nng-fact-1", stream: "validate", status: "done", start: 0.9, end: 1.35,
+        title: "Провалидированы данные для подготовки всех месторождений/пластов по ННГ",
+        short: "Валид. данных", mid: "Валидация данных ННГ",
+        note: "Выполнено: валидация данных для подготовки всех месторождений/пластов ННГ."
+      },
+      {
+        id: "nng-fact-2", stream: "models", status: "done", start: 1.2, end: 1.75,
+        title: "Подготовлены модели всех месторождений/пластов по ННГ",
+        short: "Модели", mid: "Модели всех м-р/пластов",
+        note: "Выполнено: подготовлены модели всех месторождений/пластов ННГ."
+      },
+      {
+        id: "nng-fact-3", stream: "ppd", status: "done", start: 1.55, end: 2.15,
+        title: "Многовариантные расчёты кандидатов в переводы в ППД по ННГ",
+        short: "ППД", mid: "Расчёты ППД · потенциал",
+        note: "Выполнено: многовариантные расчёты всего пула кандидатов в переводы в ППД; оценён потенциал по переводам в ППД."
+      }
+    ];
+
+    const FACT_SNMNG = [
+      {
+        id: "sn-fact-4", stream: "models80", status: "done", start: 1.7, end: 2.25,
+        title: "Подготовлены модели месторождений СН-МНГ (80% добычи нефти)",
+        short: "Модели 80%", mid: "Модели на 80% добычи",
+        note: "Выполнено: подготовлены модели месторождений СН-МНГ, приносящие 80% добычи нефти, на имеющихся данных."
+      },
+      {
+        id: "sn-fact-5", stream: "validate", status: "done", start: 1.95, end: 2.45,
+        title: "Провалидированы карты Рпл, НГЗ, PVT для моделей СН-МНГ (80% добычи)",
+        short: "Валид. карт", mid: "Валидация Рпл/НГЗ/PVT",
+        note: "Выполнено: провалидированы карты Рпл, карты НГЗ, данные PVT. Найдены недостающие карты, скорректированы под необходимый формат."
+      },
+      {
+        id: "sn-fact-6", stream: "its", status: "done", start: 2.15, end: 2.45,
+        title: "Аналитика с ИТС: период валидности карт Рпл",
+        short: "ИТС Рпл", mid: "ИТС: валидность карт с 01.2025",
+        note: "Выполнено: совместно с ИТС (исполнители карт Рпл) определён период валидности. Принято: карты с 01.2025 имеют один алгоритм построения и могут использоваться для расчётов."
+      },
+      {
+        id: "sn-fact-7", stream: "update", status: "progress", start: 2.35, end: 2.95,
+        title: "Обновить подготовленные модели СН-МНГ под отвалидированные данные",
+        short: "Обновл. моделей", mid: "Обновление моделей под валид. данные",
+        note: "Ближайшая задача: необходимо обновить подготовленные модели СН-МНГ под отвалидированные данные."
+      },
+      {
+        id: "sn-fact-8", stream: "remain", status: "plan", start: 2.7, end: 3.43,
+        title: "Провалидировать данные для оставшихся моделей СН-МНГ (+3 FTE)",
+        short: "Остаток +3FTE", mid: "Валидация остатка силами +3 FTE",
+        note: "План: провалидировать данные для оставшихся моделей СН-МНГ силами +3 FTE. Финиш контура моделей СН-МНГ — 2-я неделя сентября."
+      }
+    ];
+
+    const DATA_LAG = 0.4;
+    const UPDATE_LAG = 0.15;
+
+    const overviewStreams = [
+      { id: "data", title: "Подготовка данных" },
+      { id: "models", title: "Создание и расчёт моделей" },
+      { id: "update", title: "Актуализация моделей" }
+    ];
+
+    function dosByIds(ids) {
+      return (ids || []).map(id => DOS.find(d => d.id === id)).filter(Boolean);
+    }
+    function dosReadyForData(atTime) {
+      return DOS.filter(d => d.start + DATA_LAG <= atTime);
+    }
+    function dosReadyForUpdate(atTime) {
+      return DOS.filter(d => d.end + UPDATE_LAG <= atTime);
+    }
+    function badgeHtml(d, round = false) {
+      return `<span class="badge ${round ? "round" : ""} ${d.scope.includes("Вне") ? "out" : ""}" style="background:${d.color}" title="${d.name}">${d.code}</span>`;
+    }
+    function badgeStackHtml(list, round = false) {
+      if (!list.length) return `<span style="font-size:10px;opacity:.7">нет ДО</span>`;
+      return `<div class="badge-stack">${list.map(d => badgeHtml(d, round)).join("")}</div>`;
+    }
+
+    function makeInner(companyDo, extras = {}) {
+      const { name: company, wave, scope, start, end, id } = companyDo;
+      const span = Math.max(end - start, 0.8);
+      const s = p => start + span * p;
+      const e = p => start + span * p;
+      return {
+        title: `${company}: детальный план работ`,
+        meta: `${wave} · ${scope} · внутренний Гант`,
+        shortTitle: company,
+        overview: false,
+        streams: [
+          { id: "src", title: "Сбор исходных данных" },
+          { id: "maps", title: "Карты Рпл / валидация" },
+          { id: "build", title: "Сборка модели" },
+          { id: "pkg", title: "Пакеты сценариев" },
+          { id: "calc", title: "Групповой расчёт" },
+          { id: "qa", title: "Проверка / приёмка" }
+        ],
+        tasks: [
+          { id: `${id}-src`, stream: "src", company, wave, scope, status: extras.srcStatus || "plan", title: "Выгрузка / подготовка данных", short: "Данные", mid: "Выгрузка данных", start: s(0), end: e(0.28), kind: "bar", icon: "☁", note: extras.srcNote || `Сбор данных ${company}.`, dos: [id] },
+          { id: `${id}-maps`, stream: "maps", company, wave, scope, status: extras.mapsStatus || "plan", title: extras.mapsTitle || "Валидация карт Рпл", short: "Карты", mid: "Карты Рпл", start: s(0.18), end: e(0.48), kind: "bar", icon: "🗺", note: extras.mapsNote || `Карты Рпл ${company}.`, dos: [id] },
+          { id: `${id}-build`, stream: "build", company, wave, scope, status: "plan", title: extras.buildTitle || "Сборка модели пласта", short: "Сборка", mid: "Сборка модели", start: s(0.35), end: e(0.62), kind: "bar", icon: "▦", note: extras.buildNote || `Сборка модели ${company}.`, dos: [id] },
+          { id: `${id}-pkg`, stream: "pkg", company, wave, scope, status: "plan", title: "Формирование пакетов сценариев", short: "Пакеты", mid: "Пакеты сценариев", start: s(0.5), end: e(0.75), kind: "bar", icon: "📦", note: `Пакеты сценариев ${company}.`, dos: [id] },
+          { id: `${id}-calc`, stream: "calc", company, wave, scope, status: "plan", title: "Групповой расчёт сценариев", short: "Расчёт", mid: "Групповой расчёт", start: s(0.65), end: e(0.9), kind: "bar", icon: "⚙", note: `Расчёт сценариев ${company}.`, dos: [id] },
+          { id: `${id}-qa`, stream: "qa", company, wave, scope, status: "plan", title: "Проверка результатов", short: "Приёмка", mid: "Проверка / приёмка", start: s(0.82), end: e(1), kind: "bar", icon: "✓", note: `Приёмка ${company}.`, dos: [id] }
+        ]
+      };
+    }
+
+    function makeSharedDataDetail(task) {
+      const list = dosByIds(task.dos);
+      return {
+        title: `${task.title}: состав ДО`,
+        meta: "Общий стрим подготовки данных",
+        shortTitle: task.short || task.title,
+        overview: false,
+        streams: list.map(d => ({ id: d.id, title: `${d.code} · ${d.name}` })),
+        tasks: list.map(d => ({
+          id: `${task.id}-${d.id}`,
+          stream: d.id,
+          company: d.name,
+          wave: d.wave,
+          scope: d.scope,
+          status: d.wave === "Top 3" ? "out" : "plan",
+          title: `Подготовка ${d.name}`,
+          short: d.code,
+          mid: d.name,
+          start: Math.max(task.start, d.start + DATA_LAG * 0.5),
+          end: Math.min(task.end, d.start + DATA_LAG + 0.55),
+          kind: "bar",
+          icon: "☁",
+          note: `ДО ${d.name} в общем контуре подготовки данных.`,
+          dos: [d.id]
+        }))
+      };
+    }
+
+    function makeSharedUpdateDetail(task) {
+      const list = dosByIds(task.dos);
+      return {
+        title: `${task.title}: актуализация по ДО`,
+        meta: "Общий стрим актуализации моделей",
+        shortTitle: task.short || task.title,
+        overview: false,
+        streams: [
+          { id: "collect", title: "Сбор МЭР" },
+          { id: "apply", title: "Обновление моделей по ДО" },
+          { id: "publish", title: "Публикация" }
+        ],
+        tasks: [
+          { id: `${task.id}-collect`, stream: "collect", company: "Набор ДО", wave: "Смешанная", scope: "Смешанный", status: "all", title: "Сбор МЭР", short: "МЭР", mid: "Сбор МЭР", start: task.start, end: task.start + 0.25, kind: "bar", icon: "↻", note: "Сбор МЭР по ДО в контуре.", dos: task.dos },
+          ...list.map((d, idx) => ({
+            id: `${task.id}-apply-${d.id}`,
+            stream: "apply",
+            company: d.name,
+            wave: d.wave,
+            scope: d.scope,
+            status: d.wave === "Top 3" ? "out" : "plan",
+            title: d.name,
+            short: d.code,
+            mid: d.name,
+            start: task.start + 0.15 + idx * 0.03,
+            end: task.start + 0.45 + idx * 0.03,
+            kind: "small",
+            icon: d.code,
+            note: `Актуализация модели ${d.name}.`,
+            dos: [d.id],
+            color: d.color
+          })),
+          { id: `${task.id}-publish`, stream: "publish", company: "Набор ДО", wave: "Смешанная", scope: "Смешанный", status: "plan", title: "Фиксация версии", short: "Фикс.", mid: "Публикация", start: task.start + 0.4, end: task.end, kind: "bar", icon: "✓", note: "Публикация актуализированных моделей.", dos: task.dos }
+        ]
+      };
+    }
+
+    const modelStarts = DOS.map(d => {
+      const base = {
+        id: d.id,
+        stream: "models",
+        company: d.name,
+        wave: d.wave,
+        scope: d.scope,
+        status: d.id === "spd" ? "progress" : (d.id === "nng" ? "done" : (d.id === "sn-mng" ? "progress" : (d.wave === "Top 3" ? "out" : "plan"))),
+        title: d.name,
+        short: d.code,
+        mid: d.name,
+        start: d.start,
+        end: d.end,
+        top: d.wave === "Top 3"
+          ? (d.id === "orenburg-other" ? "78%" : "68%")
+          : (["nng", "vostok"].includes(d.id) ? "62%" : (d.id === "khantos" ? "45%" : (d.id === "orenburg" ? "55%" : "28%"))),
+        kind: "bar",
+        icon: d.code,
+        color: d.color,
+        note: `Старт работ по ДО ${d.name}. ${d.note}`,
+        dos: [d.id],
+        drill: true,
+        extraNote: null
+      };
+
+      if (d.id === "nng") {
+        base.title = "ННГ · данные + модели + ППД";
+        base.short = "ННГ";
+        base.mid = "ННГ: валидация · модели · ППД";
+        base.note = "Факт выполнен: 1) валидация данных всех м-р/пластов; 2) модели всех м-р/пластов; 3) многовариантные расчёты кандидатов в ППД и оценка потенциала.";
+        base.extraNote = { left: "18%", top: "78%", text: "✓ данные · ✓ модели · ✓ расчёты ППД" };
+      }
+
+      if (d.id === "sn-mng") {
+        base.title = "СН-МНГ · 80% добычи + валидация → обновление";
+        base.short = "СН-МНГ";
+        base.mid = "СН-МНГ: до 2-й нед. сент.";
+        base.note = "Факт: модели на 80% добычи; валидация Рпл/НГЗ/PVT; согласование с ИТС (карты с 01.2025). Далее: обновить модели под валид. данные; провалидировать остаток (+3 FTE). Финиш подготовки моделей — 2-я неделя сентября.";
+        base.extraNote = { left: "30%", top: "78%", text: "✓ 80% · ✓ карты/PVT · ✓ ИТС → до 2-й нед. сентября" };
+      }
+
+      if (d.id === "tn-vnk") {
+        base.title = "ТН-ВНК · модели 1,5 мес";
+        base.short = "ТН-ВНК";
+        base.mid = "Томскнефть · модели 1,5 мес";
+        base.note = "Подготовка моделей Томскнефть ВНК — 1,5 месяца. Вне КСПД — ручная подготовка данных (отдельный стрим подготовки данных на 1 месяц).";
+        base.extraNote = { left: "52%", top: "78%", text: "1,5 мес · вне КСПД — ручная подготовка данных" };
+      }
+
+      if (d.id === "khantos") {
+        base.title = "Хантос";
+        base.mid = "Хантос · после ТН-ВНК";
+        base.note = "Подготовка моделей Хантос — следующий шаг после Томскнефть.";
+      }
+
+      if (d.id === "vostok") {
+        base.title = "Восток";
+        base.mid = "Восток · после Хантос";
+        base.note = "Подготовка моделей Восток — после Хантос.";
+      }
+
+      if (d.id === "orenburg") {
+        base.title = "Оренбург · 1 нед.";
+        base.short = "Оренб.";
+        base.mid = "Оренбург · 1 неделя";
+        base.note = "Только нефтяная залежь Царичанско-Филатовское м-е. Остальные м-е Оренбурга вынесены в Top 3.";
+        base.extraNote = { left: "88%", top: "78%", text: "1 нед. · только нефтяная залежь Царичанско-Филатовское" };
+      }
+
+      if (d.id === "orenburg-other") {
+        base.title = "Оренбург прочие м-е";
+        base.short = "O+";
+        base.mid = "Оренбург прочие (Top 3)";
+        base.note = "Остальные месторождения Оренбурга — контур Top 3 (вне текущего фокуса Царичанско-Филатовского).";
+      }
+
+      return base;
+    });
+
+    // Отдельный стрим подготовки данных ТН-ВНК (1 месяц, вне КСПД)
+    const tnVnkDataBar = {
+      id: "tn-vnk-data",
+      stream: "data",
+      company: "ТН-ВНК",
+      wave: "Top 2",
+      scope: "В орг-объеме",
+      status: "plan",
+      title: "ТН-ВНК · ручная подготовка данных (1 мес)",
+      short: "ТН данные",
+      mid: "ТН-ВНК · вне КСПД (1 мес)",
+      start: 2.43,
+      end: 3.43,
+      top: "22%",
+      kind: "bar",
+      icon: "☁",
+      color: "#e11d48",
+      note: "Вне КСПД — ручная подготовка данных. Отдельный стрим подготовки данных на 1 месяц перед/к старту моделей Томскнефть.",
+      dos: ["tn-vnk"],
+      drill: true,
+      extraNote: { left: "38%", top: "8%", text: "ТН-ВНК: вне КСПД — ручная подготовка данных" }
+    };
+
+    const dataWindows = [
+      { id: "data-w1", title: "Подготовка данных · волна 1 (ННГ / СН-МНГ)", short: "Подг. в1", mid: "Подготовка · ННГ/СН-МНГ", start: 0.9, end: 2.45, top: "55%", dosFixed: ["nng", "sn-mng"] },
+      // с начала июля до ~20 августа, без ННГ и СПД
+      { id: "data-w2", title: "Подготовка данных · ост. ДО", short: "Подг. ост.", mid: "Подготовка · ост. ДО", start: 1.0, end: 2.65, top: "78%", dosFixed: ["sn-mng", "khantos", "tn-vnk", "vostok", "orenburg"] },
+      { id: "data-w3", title: "Подготовка данных · Top 3", short: "Подг. T3", mid: "Подготовка · Top 3", start: 4.6, end: 6.2, top: "55%", dosFixed: ["yamal", "messoyaha", "zapolyarye", "orenburg-other"] }
+    ].map(w => {
+      const dos = w.dosFixed || dosReadyForData((w.start + w.end) / 2).map(d => d.id);
+      return {
+        id: w.id,
+        title: w.title,
+        short: w.short,
+        mid: w.mid,
+        start: w.start,
+        end: w.end,
+        top: w.top,
+        stream: "data",
+        company: "Несколько ДО",
+        wave: w.id === "data-w3" ? "Top 3" : "Смешанная",
+        scope: w.id === "data-w3" ? "Вне орг-объема Б6К" : "В орг-объеме",
+        status: w.id === "data-w1" ? "done" : "plan",
+        kind: "cluster",
+        note: w.id === "data-w1"
+          ? "Факт по волне 1: провалидированы данные ННГ (все м-р/пласты); по СН-МНГ — валидация Рпл/НГЗ/PVT для моделей на 80% добычи."
+          : w.id === "data-w2"
+            ? "Подготовка данных ост. ДО: с начала июля до 20-х чисел августа. Без ННГ и СПД."
+            : "Подготовка данных контура Top 3, включая прочие месторождения Оренбурга.",
+        dos,
+        drill: true
+      };
+    });
+
+    const updateNodes = [2, 3, 4, 5, 6].map(m => {
+      const at = m + 0.5;
+      const dos = dosReadyForUpdate(at).map(d => d.id);
+      return {
+        id: `update-${m}`,
+        stream: "update",
+        company: "Набор ДО",
+        wave: "Смешанная",
+        scope: "Смешанный",
+        status: "all",
+        title: `Актуализация по МЭР · ${months[m].label}`,
+        short: `Акт. ${months[m].short}`,
+        mid: `Актуализация · ${months[m].short}`,
+        start: m + 0.28,
+        end: m + 0.72,
+        top: "50%",
+        kind: "update-node",
+        note: m === 2
+          ? "Актуализация Авг: включает контур ННГ (готово) и запуск обновления моделей СН-МНГ под отвалидированные данные."
+          : `Актуализация моделей по МЭР за ${months[m].label}.`,
+        dos,
+        drill: true
+      };
+    });
+
+    function makeFactDetail(doId, companyName, wave, scope, streams, factTasks) {
+      return {
+        title: `${companyName}: фактические и ближайшие задачи`,
+        meta: `${wave} · ${scope} · факт / план`,
+        shortTitle: companyName,
+        overview: false,
+        streams,
+        tasks: factTasks.map(t => ({
+          ...t,
+          company: companyName,
+          wave,
+          scope,
+          kind: "bar",
+          icon: t.status === "done" ? "✓" : (t.status === "progress" ? "…" : "○"),
+          dos: [doId]
+        }))
+      };
+    }
+
+    const overviewTasks = [...dataWindows, tnVnkDataBar, ...modelStarts, ...updateNodes];
+    const detailViews = {};
+    DOS.forEach(d => {
+      const extras = {};
+      if (d.id === "spd") { extras.srcStatus = "done"; extras.mapsStatus = "progress"; }
+      if (d.id === "tn-vnk") {
+        extras.buildTitle = "Сборка моделей Томскнефть (1,5 мес)";
+        extras.buildNote = "Подготовка моделей 1,5 месяца.";
+        extras.srcNote = "Вне КСПД — ручная подготовка данных.";
+        extras.srcStatus = "plan";
+        extras.mapsTitle = "Ручная подготовка / сборка вне КСПД";
+        extras.mapsNote = "Вне КСПД — ручная подготовка данных.";
+      }
+      if (d.id === "orenburg") {
+        extras.buildTitle = "Сборка: Царичанско-Филатовское";
+        extras.buildNote = "Только нефтяная залежь Царичанско-Филатовское м-е.";
+      }
+      if (d.id === "orenburg-other") {
+        extras.buildTitle = "Прочие м-е Оренбурга";
+        extras.buildNote = "Остальные месторождения Оренбурга в контуре Top 3.";
+      }
+      detailViews[d.id] = makeInner(d, extras);
+    });
+
+    detailViews["tn-vnk-data"] = {
+      title: "ТН-ВНК: ручная подготовка данных",
+      meta: "Вне КСПД · 1 месяц · отдельный стрим",
+      shortTitle: "ТН-ВНК данные",
+      overview: false,
+      streams: [
+        { id: "manual", title: "Вне КСПД · ручная подготовка" },
+        { id: "format", title: "Приведение к формату моделей" },
+        { id: "handoff", title: "Передача в сборку моделей" }
+      ],
+      tasks: [
+        {
+          id: "tn-data-1", stream: "manual", company: "ТН-ВНК", wave: "Top 2", scope: "В орг-объеме", status: "plan",
+          title: "Ручной сбор и подготовка данных вне КСПД", short: "Вне КСПД", mid: "Ручная подготовка вне КСПД",
+          start: 2.43, end: 3.05, kind: "bar", icon: "☁",
+          note: "Вне КСПД — ручная подготовка данных.", dos: ["tn-vnk"]
+        },
+        {
+          id: "tn-data-2", stream: "format", company: "ТН-ВНК", wave: "Top 2", scope: "В орг-объеме", status: "plan",
+          title: "Нормализация и формат под модели", short: "Формат", mid: "Приведение к формату",
+          start: 2.75, end: 3.25, kind: "bar", icon: "▦",
+          note: "Подготовка массивов к сборке моделей Томскнефть.", dos: ["tn-vnk"]
+        },
+        {
+          id: "tn-data-3", stream: "handoff", company: "ТН-ВНК", wave: "Top 2", scope: "В орг-объеме", status: "plan",
+          title: "Передача в контур подготовки моделей (1,5 мес)", short: "Передача", mid: "Handoff в модели",
+          start: 3.15, end: 3.43, kind: "bar", icon: "→",
+          note: "Старт подготовки моделей ТН-ВНК сразу после ручного контура данных.", dos: ["tn-vnk"]
+        }
+      ]
+    };
+
+    // Переопределяем drill-down ННГ / СН-МНГ фактическими задачами
+    detailViews.nng = makeFactDetail(
+      "nng", "ННГ", "Top 1", "В орг-объеме",
+      [
+        { id: "validate", title: "Валидация данных" },
+        { id: "models", title: "Подготовка моделей" },
+        { id: "ppd", title: "Расчёты переводов в ППД" }
+      ],
+      FACT_NNG
+    );
+
+    detailViews["sn-mng"] = makeFactDetail(
+      "sn-mng", "СН-МНГ", "Top 1", "В орг-объеме",
+      [
+        { id: "models80", title: "Модели (80% добычи)" },
+        { id: "validate", title: "Валидация карт / PVT" },
+        { id: "its", title: "Аналитика с ИТС" },
+        { id: "update", title: "Обновление моделей" },
+        { id: "remain", title: "Остаток моделей (+3 FTE)" }
+      ],
+      FACT_SNMNG
+    );
+
+    // Обогащаем общий drill подготовки данных фактами по ННГ/СН-МНГ
+    dataWindows.forEach(t => {
+      const base = makeSharedDataDetail(t);
+      if (t.id === "data-w1") {
+        base.tasks = [
+          {
+            id: "data-w1-nng", stream: "nng", company: "ННГ", wave: "Top 1", scope: "В орг-объеме", status: "done",
+            title: "Провалидированы данные всех м-р/пластов ННГ", short: "ННГ данные", mid: "Валидация данных ННГ",
+            start: 0.9, end: 1.35, kind: "bar", icon: "✓",
+            note: "Факт: провалидированы данные для подготовки всех месторождений/пластов по ННГ.", dos: ["nng"]
+          },
+          {
+            id: "data-w1-sn-maps", stream: "sn-mng", company: "СН-МНГ", wave: "Top 1", scope: "В орг-объеме", status: "done",
+            title: "Валидация Рпл / НГЗ / PVT (80% добычи СН-МНГ)", short: "СН-МНГ карты", mid: "Рпл·НГЗ·PVT",
+            start: 1.95, end: 2.45, kind: "bar", icon: "✓",
+            note: "Факт: провалидированы карты Рпл, НГЗ, PVT; найдены недостающие карты и скорректирован формат.", dos: ["sn-mng"]
+          },
+          {
+            id: "data-w1-sn-its", stream: "sn-mng", company: "СН-МНГ", wave: "Top 1", scope: "В орг-объеме", status: "done",
+            title: "ИТС: период валидности карт Рпл (с 01.2025)", short: "ИТС", mid: "ИТС · карты с 01.2025",
+            start: 2.15, end: 2.45, kind: "bar", icon: "✓",
+            note: "Факт: с ИТС принято, что карты с 01.2025 имеют единый алгоритм и применимы для расчётов.", dos: ["sn-mng"]
+          },
+          {
+            id: "data-w1-sn-remain", stream: "sn-mng", company: "СН-МНГ", wave: "Top 1", scope: "В орг-объеме", status: "plan",
+            title: "Провалидировать данные оставшихся моделей СН-МНГ (+3 FTE)", short: "+3 FTE", mid: "Остаток данных +3 FTE",
+            start: 2.7, end: 3.43, kind: "bar", icon: "○",
+            note: "План: валидация данных для оставшихся моделей СН-МНГ силами +3 FTE (до 2-й недели сентября).", dos: ["sn-mng"]
+          }
+        ];
+      }
+      if (t.id === "data-w2") {
+        base.tasks = base.tasks
+          .filter(x => !["nng", "spd"].includes(x.stream) && !["nng", "spd"].includes(x.dos?.[0]))
+          .map(x => ({
+            ...x,
+            note: x.dos?.[0] === "tn-vnk"
+              ? "В составе ост. ДО. Для ТН-ВНК основной контур — отдельный стрим «вне КСПД — ручная подготовка данных»."
+              : x.note
+          }));
+        base.meta = "Июль → 20-е августа · без ННГ и СПД";
+      }
+      detailViews[t.id] = base;
+    });
+    updateNodes.forEach(t => { detailViews[t.id] = makeSharedUpdateDetail(t); });
+
+    const overviewView = {
+      id: "overview",
+      title: "ДК на сборку, создание, расчёт и актуализацию моделей пласта",
+      meta: "Б6К · 3 FTE · июнь–декабрь 2026",
+      streams: overviewStreams,
+      tasks: overviewTasks,
+      overview: true
+    };
+
+    const monthsEl = document.getElementById("months");
+    const lanesEl = document.getElementById("lanes");
+    const ganttEl = document.getElementById("gantt");
+    const details = document.getElementById("details");
+    const waveFilters = document.getElementById("waveFilters");
+    const streamFilters = document.getElementById("streamFilters");
+    const scopeFilters = document.getElementById("scopeFilters");
+    const backBtn = document.getElementById("backBtn");
+    const openBtn = document.getElementById("openBtn");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const levelBadge = document.getElementById("levelBadge");
+    const boardTitle = document.getElementById("boardTitle");
+    const boardMeta = document.getElementById("boardMeta");
+    const hint = document.getElementById("hint");
+    const kpiStreams = document.getElementById("kpiStreams");
+    const kpiLevel = document.getElementById("kpiLevel");
+    const cornerLabel = document.getElementById("cornerLabel");
+    const doLegend = document.getElementById("doLegend");
+    const currentTasksEl = document.getElementById("currentTasks");
+    const zoomPresets = document.getElementById("zoomPresets");
+    const zoomSlider = document.getElementById("zoomSlider");
+    const panSlider = document.getElementById("panSlider");
+    const zoomReadout = document.getElementById("zoomReadout");
+    const panReadout = document.getElementById("panReadout");
+
+    let selectedWave = "Все волны";
+    let selectedStream = "Все стримы";
+    let selectedScope = "Все";
+    let activeTask = null;
+    let currentView = overviewView;
+    const navStack = [overviewView];
+    let activePreset = "all";
+
+    // Окно просмотра шкалы [0..7]
+    let viewSpan = 7;
+    let viewStart = 0;
+    let viewEnd = 7;
+
+    function getTodayIndex(date = new Date()) {
+      const start = new Date(2026, 5, 1);
+      const end = new Date(2027, 0, 1);
+      const t = date.getTime();
+      if (t <= start.getTime()) return 0;
+      if (t >= end.getTime()) return 7;
+      return ((t - start.getTime()) / (end.getTime() - start.getTime())) * 7;
+    }
+
+    const TODAY = getTodayIndex();
+    const TODAY_LABEL = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" });
+
+    function syncViewWindow() {
+      viewSpan = Number(zoomSlider.value);
+      const maxStart = Math.max(0, 7 - viewSpan);
+      panSlider.max = String(maxStart);
+      if (Number(panSlider.value) > maxStart) panSlider.value = String(maxStart);
+      viewStart = Number(panSlider.value);
+      viewEnd = viewStart + viewSpan;
+    }
+
+    function toViewPct(value) {
+      return ((value - viewStart) / (viewEnd - viewStart)) * 100;
+    }
+
+    function labelLevel() {
+      if (viewSpan <= 1.5) return "full";
+      if (viewSpan <= 3.5) return "mid";
+      return "short";
+    }
+
+    function monthLabelAt(idx) {
+      const i = Math.min(6, Math.max(0, Math.floor(idx)));
+      return months[i].label;
+    }
+
+    function isTaskDone(task) {
+      return task.status === "done" || task.end <= TODAY;
+    }
+
+    function isTaskInProgress(task) {
+      return !isTaskDone(task) && task.start < TODAY && task.end > TODAY;
+    }
+
+    function legendColorForTask(task) {
+      const list = dosByIds(task.dos || []);
+      if (list.length >= 1) return list[0].color;
+      if (task.wave === "Top 1") return "#0ea5e9";
+      if (task.wave === "Top 2") return "#38bdf8";
+      if (task.wave === "Top 3") return "#a855f7";
+      return "#15803d";
+    }
+
+    function statusClass(task) {
+      if (isTaskDone(task)) return "is-done";
+      if (task.kind === "cluster" || task.kind === "update-node") return "";
+      if (isTaskInProgress(task) || task.status === "progress") return "progress";
+      if (!currentView.overview && task.status !== "all" && task.status !== "out") return "inner";
+      if (task.status === "all") return "all";
+      if (task.wave === "Top 3" || task.status === "out") return "top3";
+      if (task.wave === "Top 1") return "top1";
+      if (task.wave === "Top 2") return "top2";
+      return "plan";
+    }
+
+    function appendTodayLine(parent, withLabel = false) {
+      if (TODAY <= viewStart || TODAY >= viewEnd) return;
+      const line = document.createElement("div");
+      line.className = "today-line";
+      line.style.left = `${toViewPct(TODAY)}%`;
+      if (withLabel) line.dataset.label = `Сегодня · ${TODAY_LABEL}`;
+      parent.appendChild(line);
+    }
+
+    function renderDoLegend() {
+      doLegend.innerHTML = DOS.map(d => `
+        <div class="do-item">
+          ${badgeHtml(d)}
+          <div>
+            <div><b>${d.name}</b></div>
+            <div class="meta">${d.wave} · старт: ${months[Math.floor(d.start)].label}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderCurrentTasks() {
+      const source = currentView.overview ? overviewTasks : currentView.tasks;
+      let list = source.filter(isTaskInProgress);
+
+      // На обзоре дополнительно показываем ближайшие фактические задачи СН-МНГ
+      if (currentView.overview) {
+        const factNear = [...FACT_NNG, ...FACT_SNMNG]
+          .filter(t => t.status === "progress" || (t.status === "plan" && t.start <= TODAY + 0.6 && t.end >= TODAY - 0.1))
+          .map(t => ({
+            ...t,
+            company: t.id.startsWith("nng") ? "ННГ" : "СН-МНГ",
+            wave: "Top 1",
+            scope: "В орг-объеме",
+            stream: t.id.startsWith("nng") ? "nng" : "sn-mng",
+            mid: t.mid,
+            parentId: t.id.startsWith("nng") ? "nng" : "sn-mng"
+          }));
+        // не дублируем, если уже есть бар ДО в работе
+        list = [...list, ...factNear.filter(f => !list.some(x => x.id === f.parentId && f.status !== "progress"))];
+        // приоритет: progress факты сверху
+        list = [
+          ...factNear.filter(t => t.status === "progress"),
+          ...list.filter(t => !factNear.some(f => f.id === t.id)),
+          ...factNear.filter(t => t.status === "plan")
+        ];
+        // unique by id
+        const seen = new Set();
+        list = list.filter(t => {
+          if (seen.has(t.id)) return false;
+          seen.add(t.id);
+          return true;
+        }).slice(0, 6);
+      }
+
+      if (!list.length) {
+        currentTasksEl.innerHTML = `<div class="current-empty">На текущую дату активных задач нет.</div>`;
+        return;
+      }
+
+      currentTasksEl.innerHTML = list.map(task => {
+        const streamTitle = currentView.overview
+          ? (overviewStreams.find(s => s.id === task.stream)?.title || task.company || task.stream)
+          : (currentView.streams.find(s => s.id === task.stream)?.title || task.stream);
+        const done = isTaskDone(task);
+        const tone = done ? "done-tone" : "";
+        return `
+          <button class="current-task ${tone}" data-id="${task.parentId || task.id}" data-fact="${task.parentId ? task.id : ""}">
+            <div class="ct-title">${task.mid || task.title}</div>
+            <div class="ct-meta">${streamTitle} · ${done ? "выполнено" : task.status === "plan" ? "план (скоро)" : "в работе"} · ${monthLabelAt(task.start)}→${monthLabelAt(task.end)}</div>
+          </button>
+        `;
+      }).join("");
+
+      currentTasksEl.querySelectorAll(".current-task").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          const task = overviewTasks.find(t => t.id === id) || currentView.tasks.find(t => t.id === id);
+          if (!task) return;
+          activeTask = task;
+          showDetails(task);
+          document.querySelectorAll(".bar").forEach(el => {
+            el.classList.toggle("active", el.dataset.id === task.id);
+          });
+          const bar = document.querySelector(`.bar[data-id="${task.id}"]`);
+          if (bar) bar.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+          // если это факт по ДО — сразу открываем внутренний Гант
+          if (detailViews[task.id]) openDrill(task.id);
+        });
+      });
+    }
+
+    function makeChip(text, holder, active, onClick, disabled = false) {
+      const btn = document.createElement("button");
+      btn.className = `chip ${active ? "active" : ""}`;
+      btn.textContent = text;
+      btn.disabled = disabled;
+      if (!disabled) btn.addEventListener("click", onClick);
+      holder.appendChild(btn);
+    }
+
+    function renderFilters() {
+      waveFilters.innerHTML = "";
+      streamFilters.innerHTML = "";
+      scopeFilters.innerHTML = "";
+      const streamNames = currentView.streams.map(s => s.title);
+      const filtersDisabled = !currentView.overview;
+
+      ["Все волны", "Top 1", "Top 2", "Top 3"].forEach(w => {
+        makeChip(w, waveFilters, selectedWave === w, () => { selectedWave = w; renderFilters(); applyFilters(); }, filtersDisabled);
+      });
+      ["Все стримы", ...streamNames].forEach(s => {
+        makeChip(s, streamFilters, selectedStream === s, () => { selectedStream = s; renderFilters(); applyFilters(); });
+      });
+      ["Все", "В орг-объеме", "Вне орг-объема Б6К"].forEach(s => {
+        makeChip(s, scopeFilters, selectedScope === s, () => { selectedScope = s; renderFilters(); applyFilters(); }, filtersDisabled);
+      });
+    }
+
+    function showDetails(task) {
+      const streamTitle = currentView.streams.find(s => s.id === task.stream)?.title || task.stream;
+      const canDrill = Boolean(detailViews[task.id]);
+      const list = dosByIds(task.dos || []);
+      details.innerHTML = `
+        <h3>${task.title}</h3>
+        <div class="line"><b>Стрим:</b> ${streamTitle}</div>
+        <div class="line"><b>Волна:</b> ${task.wave}</div>
+        <div class="line"><b>Охват:</b> ${task.scope}</div>
+        <div class="line"><b>Период:</b> ${monthLabelAt(task.start)} → ${monthLabelAt(task.end)}</div>
+        <div class="line"><b>Статус:</b> ${isTaskDone(task) ? "Выполнено" : isTaskInProgress(task) ? "В работе" : "План"}</div>
+        <div class="line">${task.note}</div>
+        <div class="line"><b>ДО:</b> ${list.map(d => d.name).join(", ") || "—"}</div>
+        <div class="badge-row">${list.map(d => badgeHtml(d, task.kind === "update-node")).join("")}</div>
+        ${canDrill ? `<div class="line"><b>Drill-down:</b> ${detailViews[task.id].streams.length} стримов</div>` : ""}
+      `;
+      openBtn.disabled = !canDrill;
+      openBtn.textContent = canDrill ? "Открыть внутренний Гант" : "Нет внутреннего Ганта";
+    }
+
+    function updateChrome() {
+      const level = navStack.length;
+      kpiLevel.textContent = String(level);
+      kpiStreams.textContent = String(currentView.streams.length);
+      levelBadge.textContent = level === 1 ? "Уровень 1 · Обзор" : `Уровень ${level} · Детали`;
+      boardTitle.textContent = currentView.title;
+      boardMeta.textContent = currentView.overview
+        ? `${currentView.meta} · сегодня: ${TODAY_LABEL} · окно: ${monthLabelAt(viewStart)}→${monthLabelAt(Math.max(viewStart, viewEnd - 0.01))}`
+        : currentView.meta;
+      cornerLabel.textContent = currentView.overview ? "Стрим / период" : "Внутр. стрим / период";
+      backBtn.disabled = level <= 1;
+      hint.textContent = "Наведение на плашку — полный текст. Ползунок снизу сужает месяцы/кварталы и раскрывает подписи.";
+
+      breadcrumb.innerHTML = "";
+      navStack.forEach((view, idx) => {
+        if (idx > 0) {
+          const sep = document.createElement("span");
+          sep.className = "sep";
+          sep.textContent = "/";
+          breadcrumb.appendChild(sep);
+        }
+        const btn = document.createElement("button");
+        btn.textContent = idx === 0 ? "Обзор" : (view.shortTitle || view.title.split(":")[0] || view.title);
+        btn.addEventListener("click", () => {
+          while (navStack.length > idx + 1) navStack.pop();
+          currentView = navStack[navStack.length - 1];
+          selectedStream = "Все стримы";
+          activeTask = null;
+          openBtn.disabled = true;
+          renderAll();
+        });
+        breadcrumb.appendChild(btn);
+      });
+    }
+
+    function openDrill(taskId) {
+      const view = detailViews[taskId];
+      if (!view) return;
+      currentView = { ...view, id: taskId };
+      navStack.push(currentView);
+      selectedStream = "Все стримы";
+      activeTask = null;
+      openBtn.disabled = true;
+      renderAll();
+    }
+
+    function renderBarContent(task) {
+      const list = dosByIds(task.dos || []);
+      const short = task.short || task.title;
+      const mid = task.mid || task.title;
+      const full = task.title;
+      const tip = `${task.title}\n${task.note || ""}`.trim();
+
+      if (task.kind === "cluster" || task.kind === "update-node") {
+        return `
+          <div class="bar-title">
+            <span class="label-short">${short}</span>
+            <span class="label-mid">${mid}</span>
+            <span class="label-full">${full}</span>
+          </div>
+          <span class="label-note">${task.note || ""}</span>
+          ${badgeStackHtml(list, task.kind === "update-node")}
+          <div class="hover-tip">${tip.replace(/\n/g, "<br>")}</div>
+        `;
+      }
+
+      const doObj = list[0];
+      const startBadge = doObj
+        ? `<span class="do-start-badge" style="background:${doObj.color}">${doObj.code}</span>`
+        : `<span class="do-start-badge" style="background:#64748b">${task.icon || "●"}</span>`;
+
+      return `
+        ${startBadge}
+        <span class="label-short">${short}</span>
+        <span class="label-mid">${mid}</span>
+        <span class="label-full">${full}</span>
+        <span class="label-note">${task.note || ""}</span>
+        <div class="hover-tip">${tip.replace(/\n/g, "<br>")}</div>
+      `;
+    }
+
+    function visibleTicks() {
+      const ticks = [];
+      const from = Math.floor(viewStart);
+      const to = Math.ceil(viewEnd - 0.0001);
+      for (let i = from; i < to; i++) {
+        if (i >= 0 && i <= 6) ticks.push(i);
+      }
+      return ticks.length ? ticks : [Math.min(6, Math.max(0, from))];
+    }
+
+    function renderZoomPresets() {
+      const presets = [
+        { id: "all", label: "Весь период", start: 0, span: 7 },
+        { id: "q2", label: "Q2", start: 0, span: 1 },
+        { id: "q3", label: "Q3", start: 1, span: 3 },
+        { id: "q4", label: "Q4", start: 4, span: 3 },
+        ...months.map((m, i) => ({ id: `m${i}`, label: m.short, start: i, span: 1 }))
+      ];
+
+      zoomPresets.innerHTML = "";
+      presets.forEach(p => {
+        const btn = document.createElement("button");
+        btn.textContent = p.label;
+        btn.className = activePreset === p.id ? "active" : "";
+        btn.addEventListener("click", () => {
+          activePreset = p.id;
+          zoomSlider.value = String(p.span);
+          panSlider.value = String(p.start);
+          syncViewWindow();
+          renderZoomPresets();
+          renderAll();
+        });
+        zoomPresets.appendChild(btn);
+      });
+    }
+
+    function updateZoomReadout() {
+      const level = labelLevel();
+      zoomReadout.textContent = `${viewSpan.toFixed(2)} мес · подписи: ${level === "full" ? "полные" : level === "mid" ? "средние" : "краткие"}`;
+      panReadout.textContent = `${monthLabelAt(viewStart)} → ${monthLabelAt(Math.max(viewStart, viewEnd - 0.01))}`;
+    }
+
+    function renderChart() {
+      syncViewWindow();
+      updateZoomReadout();
+
+      const level = labelLevel();
+      ganttEl.classList.remove("zoom-short", "zoom-mid", "zoom-full");
+      ganttEl.classList.add(level === "full" ? "zoom-full" : level === "mid" ? "zoom-mid" : "zoom-short");
+
+      const ticks = visibleTicks();
+      monthsEl.style.gridTemplateColumns = `repeat(${ticks.length}, 1fr)`;
+      monthsEl.innerHTML = ticks.map(i => `
+        <div class="month"><b>${viewSpan <= 2 ? months[i].label : months[i].short}</b><span>${months[i].q}</span></div>
+      `).join("");
+      appendTodayLine(monthsEl, true);
+
+      lanesEl.innerHTML = "";
+
+      currentView.streams.forEach(stream => {
+        const lane = document.createElement("div");
+        lane.className = `lane ${currentView.overview ? "overview" : "detail"}`;
+        lane.dataset.stream = stream.title;
+        lane.style.minHeight = currentView.overview
+          ? (stream.id === "models" ? "220px" : stream.id === "data" ? "170px" : "140px")
+          : "78px";
+
+        const label = document.createElement("div");
+        label.className = "lane-label";
+        label.textContent = stream.title;
+
+        const track = document.createElement("div");
+        track.className = "lane-track";
+        track.style.setProperty("--ticks", String(ticks.length));
+        appendTodayLine(track, false);
+
+        currentView.tasks
+          .filter(t => t.stream === stream.id)
+          .filter(t => t.end > viewStart && t.start < viewEnd)
+          .forEach(task => {
+            const clippedStart = Math.max(task.start, viewStart);
+            const clippedEnd = Math.min(task.end, viewEnd);
+            const left = toViewPct(clippedStart);
+            const width = Math.max(toViewPct(clippedEnd) - left, task.kind === "update-node" ? 8 : 3.5);
+            const btn = document.createElement("button");
+            const canDrill = Boolean(detailViews[task.id]);
+            const done = isTaskDone(task);
+            btn.className = `bar ${task.kind || "bar"} ${statusClass(task)} ${canDrill ? "has-drill" : ""}`;
+            btn.style.left = `${left}%`;
+            btn.style.setProperty("--legend-color", legendColorForTask(task));
+            if (task.kind === "update-node") {
+              btn.style.width = "auto";
+              btn.style.minWidth = `${Math.max(56, 18 + (task.dos?.length || 0) * 14)}px`;
+            } else {
+              btn.style.width = `${width}%`;
+            }
+            btn.style.top = task.top || "50%";
+            if (task.color && task.kind === "small" && !done) btn.style.background = task.color;
+            if (level === "full" && task.kind !== "update-node") {
+              btn.style.height = "auto";
+              btn.style.minHeight = "44px";
+              btn.style.alignItems = "flex-start";
+              btn.style.flexDirection = "column";
+              btn.style.paddingTop = "6px";
+              btn.style.paddingBottom = "6px";
+              btn.style.whiteSpace = "normal";
+            }
+            btn.dataset.id = task.id;
+            btn.dataset.wave = task.wave;
+            btn.dataset.scope = task.scope;
+            btn.dataset.stream = stream.title;
+            btn.dataset.dos = (task.dos || []).join(",");
+            btn.innerHTML = renderBarContent(task);
+
+            btn.addEventListener("mouseenter", () => {
+              const trackRect = track.getBoundingClientRect();
+              const barRect = btn.getBoundingClientRect();
+              const spaceBelow = trackRect.bottom - barRect.bottom;
+              btn.classList.toggle("tip-above", spaceBelow < 90);
+            });
+
+            btn.addEventListener("click", () => {
+              activeTask = task;
+              document.querySelectorAll(".bar").forEach(el => el.classList.remove("active"));
+              btn.classList.add("active");
+              showDetails(task);
+              if (canDrill) openDrill(task.id);
+            });
+
+            track.appendChild(btn);
+
+            if (task.extraNote && currentView.overview) {
+              const note = document.createElement("div");
+              note.className = "note";
+              const notePos = Number(String(task.extraNote.left).replace("%", ""));
+              // extraNote left was absolute; map roughly into view if visible
+              note.style.left = `${Math.min(90, Math.max(2, toViewPct(notePos / 100 * 7)))}%`;
+              note.style.top = task.extraNote.top;
+              note.textContent = task.extraNote.text;
+              track.appendChild(note);
+            }
+          });
+
+        lane.appendChild(label);
+        lane.appendChild(track);
+        lanesEl.appendChild(lane);
+      });
+    }
+
+    function taskMatchesFilters(task) {
+      if (!currentView.overview) return true;
+      const list = dosByIds(task.dos || []);
+      const waveOk = selectedWave === "Все волны" || task.wave === selectedWave || list.some(d => d.wave === selectedWave);
+      const scopeOk = selectedScope === "Все" || task.scope === selectedScope || list.some(d => d.scope === selectedScope);
+      return waveOk && scopeOk;
+    }
+
+    function applyFilters() {
+      document.querySelectorAll(".bar").forEach(bar => {
+        const task = currentView.tasks.find(t => t.id === bar.dataset.id);
+        const streamOk = selectedStream === "Все стримы" || bar.dataset.stream === selectedStream;
+        const otherOk = task ? taskMatchesFilters(task) : true;
+        bar.classList.toggle("hidden", !(streamOk && otherOk));
+      });
+      document.querySelectorAll(".lane").forEach(lane => {
+        lane.style.display = selectedStream === "Все стримы" || lane.dataset.stream === selectedStream ? "" : "none";
+      });
+    }
+
+    function renderAll() {
+      updateChrome();
+      renderFilters();
+      renderChart();
+      applyFilters();
+      renderCurrentTasks();
+      details.innerHTML = `
+        <h3>Детали задачи</h3>
+        <div class="line">Кликните плашку или задачу слева. Наведение показывает полный текст.</div>
+      `;
+    }
+
+    backBtn.addEventListener("click", () => {
+      if (navStack.length <= 1) return;
+      navStack.pop();
+      currentView = navStack[navStack.length - 1];
+      selectedStream = "Все стримы";
+      activeTask = null;
+      openBtn.disabled = true;
+      renderAll();
+    });
+
+    openBtn.addEventListener("click", () => {
+      if (activeTask && detailViews[activeTask.id]) openDrill(activeTask.id);
+    });
+
+    zoomSlider.addEventListener("input", () => {
+      activePreset = "custom";
+      // при сужении окна держим фокус около текущей даты / центра
+      const prevCenter = (viewStart + viewEnd) / 2;
+      syncViewWindow();
+      const maxStart = Math.max(0, 7 - viewSpan);
+      let nextStart = prevCenter - viewSpan / 2;
+      nextStart = Math.min(maxStart, Math.max(0, nextStart));
+      panSlider.value = String(nextStart);
+      syncViewWindow();
+      renderZoomPresets();
+      renderAll();
+    });
+
+    panSlider.addEventListener("input", () => {
+      activePreset = "custom";
+      syncViewWindow();
+      renderZoomPresets();
+      renderAll();
+    });
+
+    renderDoLegend();
+    renderZoomPresets();
+    syncViewWindow();
+    renderAll();
+  </script>
+</body>
+</html>
