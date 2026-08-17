@@ -318,7 +318,7 @@
       overflow: visible;
     }
     .lane:last-child { border-bottom: none; }
-    .lane.overview { min-height: 160px; }
+    .lane.overview { min-height: 168px; }
 
     .lane-label {
       border-right: 1px solid var(--border);
@@ -601,14 +601,207 @@
       line-height: 1.4;
     }
 
+    .app-header {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 14px 16px 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .app-brand {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: .01em;
+    }
+    .app-brand span { color: var(--muted); font-weight: 600; font-size: 13px; margin-left: 8px; }
+    .top-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+    .top-tab {
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+    }
+    .top-tab:hover { color: #0369a1; background: #f0f9ff; }
+    .top-tab.active {
+      background: var(--card);
+      color: #0f172a;
+      border-color: var(--border);
+      box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.04);
+    }
+    .tab-view[hidden] { display: none !important; }
+    .page.page-wide {
+      grid-template-columns: 1fr;
+      max-width: 1680px;
+    }
+    .wide-board {
+      padding: 18px 20px 28px;
+      overflow: auto;
+    }
+
+    /* —— Stats tab —— */
+    .stats-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .stats-head h1 { margin: 0 0 6px; font-size: 22px; }
+    .stats-sub { margin: 0; color: var(--muted); font-size: 13px; max-width: 720px; line-height: 1.4; }
+    .stats-legend { display: flex; flex-wrap: wrap; gap: 10px 14px; font-size: 12px; color: #334155; }
+    .stats-legend .leg { display: inline-flex; align-items: center; gap: 6px; }
+    .stats-legend i {
+      width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,.12);
+    }
+    .stats-do { margin-top: 22px; }
+    .stats-do-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px;
+      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .stats-do-head h2 { margin: 0; font-size: 18px; }
+    .stats-do-total { font-size: 13px; color: var(--muted); }
+    .donut-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+      gap: 14px 10px;
+      align-items: end;
+    }
+    .donut-card {
+      position: relative;
+      text-align: center;
+      padding: 8px 6px 10px;
+      border-radius: 12px;
+      transition: background .12s ease;
+    }
+    .donut-card:hover { background: #f8fafc; }
+    .donut-wrap {
+      display: grid; place-items: center;
+      min-height: var(--donut-size, 80px);
+      margin-bottom: 6px;
+    }
+    .donut-name {
+      font-size: 12px; font-weight: 700; color: #0f172a;
+      line-height: 1.25; min-height: 2.5em;
+    }
+    .donut-meta { font-size: 11px; color: var(--muted); }
+    .donut-tip {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% - 4px);
+      transform: translateX(-50%);
+      min-width: 220px;
+      max-width: 280px;
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.4;
+      text-align: left;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      z-index: 40;
+      pointer-events: none;
+    }
+    .donut-card:hover .donut-tip { display: block; }
+    .stats-loading, .stats-error {
+      padding: 24px; color: var(--muted); font-size: 14px;
+      border: 1px dashed var(--border); border-radius: 12px;
+    }
+    .stats-error { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
+
+    /* —— Approach slide —— */
+    .approach-slide {
+      background:
+        radial-gradient(1200px 480px at 10% -10%, #dbeafe 0%, transparent 55%),
+        radial-gradient(900px 420px at 100% 0%, #ecfeff 0%, transparent 50%),
+        #fff;
+    }
+    .approach-kicker {
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: #0369a1; margin: 0 0 6px;
+    }
+    .approach-slide h1 { margin: 0 0 8px; font-size: 26px; }
+    .approach-lead {
+      margin: 0 0 22px; color: var(--muted); font-size: 14px; max-width: 820px; line-height: 1.45;
+    }
+    .approach-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .approach-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+    .approach-card h3 {
+      margin: 0 0 10px; font-size: 15px; color: #0f172a;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .approach-card .num {
+      width: 24px; height: 24px; border-radius: 8px;
+      background: #e0f2fe; color: #0369a1;
+      display: inline-grid; place-items: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+    }
+    .approach-card ul {
+      margin: 0; padding-left: 18px; color: #334155; font-size: 13px; line-height: 1.5;
+    }
+    .approach-card li { margin: 4px 0; }
+    .approach-note {
+      margin-top: 16px; padding: 12px 14px; border-radius: 12px;
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      font-size: 13px; color: #1e3a8a; line-height: 1.45;
+    }
+    .approach-dos {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+    }
+    .approach-dos span {
+      font-size: 11px; font-weight: 700; padding: 4px 8px;
+      border-radius: 999px; background: #f1f5f9; color: #334155;
+      border: 1px solid var(--border);
+    }
+
     @media (max-width: 1200px) {
       .page { grid-template-columns: 1fr; }
       .panel { position: static; max-height: none; }
       .zoom-controls { grid-template-columns: 1fr; }
+      .approach-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <header class="app-header">
+    <div class="app-brand">ДК Б6К <span>дорожная карта · модели · ППД</span></div>
+    <nav class="top-tabs" id="mainTabs" aria-label="Разделы">
+      <button type="button" class="top-tab active" data-tab="gantt">Дорожная карта</button>
+      <button type="button" class="top-tab" data-tab="stats">Статистика моделей</button>
+      <button type="button" class="top-tab" data-tab="approach">Системный подход</button>
+    </nav>
+  </header>
+
+  <div class="tab-view" id="view-gantt">
   <main class="page">
     <aside class="panel">
       <h1>ДК Б6К — Гант</h1>
@@ -618,7 +811,7 @@
 
       <div class="kpi">
         <div class="kpi-card"><div class="kpi-val">11</div><div class="kpi-label">ДО</div></div>
-        <div class="kpi-card"><div class="kpi-val" id="kpiStreams">3</div><div class="kpi-label">стрима</div></div>
+        <div class="kpi-card"><div class="kpi-val" id="kpiStreams">4</div><div class="kpi-label">стрима</div></div>
         <div class="kpi-card"><div class="kpi-val" id="kpiLevel">1</div><div class="kpi-label">уровень</div></div>
       </div>
 
@@ -685,6 +878,74 @@
 
     </section>
   </main>
+  </div>
+
+  <div class="tab-view" id="view-stats" hidden>
+    <main class="page page-wide">
+      <section class="board wide-board">
+        <div id="statsRoot"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="tab-view" id="view-approach" hidden>
+    <main class="page page-wide">
+      <section class="board wide-board approach-slide">
+        <div class="approach-kicker">Б6К · все ДО</div>
+        <h1>Системный подход</h1>
+        <p class="approach-lead">
+          Единые правила подготовки данных, расчёта потенциала переводов в ППД и конфигурации моделей
+          для всех дочерних обществ — без ручного «разбора» по каждому ДО.
+        </p>
+        <div class="approach-grid">
+          <article class="approach-card">
+            <h3><span class="num">1</span> Требования к данным</h3>
+            <ul>
+              <li><b>Карты НГЗ</b> — актуальные, в согласованной системе координат, без шумов и артефактов оцифровки.</li>
+              <li><b>Карты и данные по Рпл</b> — единый алгоритм построения, зафиксированный период валидности.</li>
+              <li><b>Контуры блоков</b> — актуальные границы расчётных объектов, согласованные с контуром модели.</li>
+              <li>Для каждого ДО фиксируется комплект обязательных слоёв до старта сборки моделей.</li>
+            </ul>
+          </article>
+          <article class="approach-card">
+            <h3><span class="num">2</span> Формат данных вне КСПД</h3>
+            <ul>
+              <li>Месторождения и ДО вне КСПД готовятся по <b>единому шаблону</b> (ручной контур → нормализация → handoff).</li>
+              <li>Единые именования пластов/объектов, единицы измерения и структура файлов обмена.</li>
+              <li>Контроль полноты: карты, PVT, история, контуры — чек-лист до передачи в сборку.</li>
+              <li>Пример контура: ТН-ВНК (ручная подготовка данных 1 мес. перед моделями).</li>
+            </ul>
+          </article>
+          <article class="approach-card">
+            <h3><span class="num">3</span> Потенциал переводов в ППД</h3>
+            <ul>
+              <li>Единый расчёт кандидатов в трёх контурах: <b>ДО</b>, <b>СПекТР</b>, <b>УБД/прочее</b>.</li>
+              <li>Сопоставимые метрики потенциала (ΔД1 / ΔД3 / ΔД5) и единый пул кандидатов по месторождению.</li>
+              <li>Сначала — ретроспектива по готовым ДО (ННГ), далее — СН-МНГ после готовности моделей, затем тиражирование.</li>
+              <li>Результаты фиксируются в своде статистики моделей (вкладка «Статистика моделей»).</li>
+            </ul>
+          </article>
+          <article class="approach-card">
+            <h3><span class="num">4</span> Конфигурация модели и прогноз</h3>
+            <ul>
+              <li><b>Конфигурация модели</b>: единые базовые настройки сценариев Const / МЭР и правила актуализации.</li>
+              <li><b>Граничные значения</b>: пороги отбора кандидатов, ограничения по давлению/обводнённости и качеству входных карт.</li>
+              <li><b>Период прогнозирования</b>: согласованный горизонт (типовой контур до 01.01.2033) для сопоставимости ДО.</li>
+              <li>Автовалидация и исправление проблемных входных данных — часть доработки ИС Б6К.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="approach-note">
+          <b>Охват:</b> системный подход применяется ко всем ДО в контуре Б6К (орг-объём и последующее тиражирование).
+          Детальный график работ — на дорожной карте, стрим «Доработка ИС Б6К» (после Q3 2026).
+          <div class="approach-dos">
+            <span>СПД</span><span>ННГ</span><span>СН-МНГ</span><span>ТН-ВНК</span><span>Хантос</span>
+            <span>Восток</span><span>Оренбург</span><span>Ямал</span><span>Мессояха</span><span>Заполярье</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
     const months = [
@@ -701,36 +962,36 @@
       { id: "spd", name: "СПД", code: "C", color: "#f97316", wave: "Top 2", scope: "В орг-объеме", start: 0.35, end: 1.15, note: "Ранний старт СПД." },
       {
         id: "nng", name: "ННГ", code: "N", color: "#0ea5e9", wave: "Top 1", scope: "В орг-объеме",
-        start: 0.9, end: 2.15,
-        note: "Факт: провалидированы данные, подготовлены модели всех м-р/пластов, выполнены многовариантные расчёты кандидатов в ППД."
+        start: 0.9, end: 1.97,
+        note: "Факт: провалидированы данные, подготовлены модели всех м-р/пластов, выполнены расчёты кандидатов в ППД (ДО, СПекТР, УБД)."
       },
       {
         id: "sn-mng", name: "СН-МНГ", code: "Mr", color: "#2563eb", wave: "Top 1", scope: "В орг-объеме",
-        // до 2-й недели сентября (~14.09)
-        start: 1.7, end: 3.43,
-        note: "Факт: модели на 80% добычи + валидация карт/НГЗ/PVT + согласование с ИТС (карты с 01.2025). Далее: обновить модели и провалидировать остаток (+3 FTE). Финиш подготовки моделей — 2-я неделя сентября."
+        // конец августа
+        start: 1.7, end: 3.0,
+        note: "Факт: модели на 80% добычи + валидация карт/НГЗ/PVT + согласование с ИТС (карты с 01.2025). Далее: обновить модели и провалидировать остаток (+3 FTE). Финиш подготовки моделей — конец августа; затем расчёты кандидатов в ППД (ДО, СПекТР, УБД)."
       },
       // Последовательность моделей: Томскнефть → Хантос → Восток → Оренбург
       {
         id: "tn-vnk", name: "ТН-ВНК", code: "T", color: "#e11d48", wave: "Top 2", scope: "В орг-объеме",
         // модели 1,5 мес после СН-МНГ
-        start: 3.43, end: 4.93,
+        start: 3.13, end: 4.63,
         note: "Подготовка моделей 1,5 мес. Вне КСПД — ручная подготовка данных (отдельный стрим 1 мес)."
       },
       {
         id: "khantos", name: "Хантос", code: "X", color: "#6b7280", wave: "Top 1", scope: "В орг-объеме",
-        start: 4.93, end: 5.65,
+        start: 4.63, end: 5.35,
         note: "Подготовка моделей после ТН-ВНК."
       },
       {
         id: "vostok", name: "Восток", code: "B", color: "#22c55e", wave: "Top 2", scope: "В орг-объеме",
-        start: 5.65, end: 6.35,
+        start: 5.35, end: 6.05,
         note: "Подготовка моделей после Хантос."
       },
       {
         id: "orenburg", name: "Оренбург", code: "O", color: "#dc2626", wave: "Top 2", scope: "В орг-объеме",
         // 1 неделя
-        start: 6.35, end: 6.58,
+        start: 6.05, end: 6.28,
         note: "Только нефтяная залежь Царичанско-Филатовское м-е."
       },
       { id: "yamal", name: "Ямал", code: "Я", color: "#a855f7", wave: "Top 3", scope: "Вне орг-объема Б6К", start: 5.2, end: 5.85, note: "Вне орг-объема Б6К." },
@@ -758,10 +1019,10 @@
         note: "Выполнено: подготовлены модели всех месторождений/пластов ННГ."
       },
       {
-        id: "nng-fact-3", stream: "ppd", status: "done", start: 1.55, end: 2.15,
-        title: "Многовариантные расчёты кандидатов в переводы в ППД по ННГ",
-        short: "ППД", mid: "Расчёты ППД · потенциал",
-        note: "Выполнено: многовариантные расчёты всего пула кандидатов в переводы в ППД; оценён потенциал по переводам в ППД."
+        id: "nng-fact-3", stream: "ppd", status: "done", start: 1.85, end: 1.97,
+        title: "Расчёты кандидатов в ППД (ДО, СПекТР, УБД) по ННГ",
+        short: "ППД", mid: "ППД · ДО/СПекТР/УБД",
+        note: "Выполнено (ретроспектива, 3–4 дня): многовариантные расчёты кандидатов в переводы в ППД по контурам ДО, СПекТР и УБД; оценён потенциал переводов в ППД."
       }
     ];
 
@@ -791,10 +1052,16 @@
         note: "Ближайшая задача: необходимо обновить подготовленные модели СН-МНГ под отвалидированные данные."
       },
       {
-        id: "sn-fact-8", stream: "remain", status: "plan", start: 2.7, end: 3.43,
+        id: "sn-fact-8", stream: "remain", status: "plan", start: 2.7, end: 3.0,
         title: "Провалидировать данные для оставшихся моделей СН-МНГ (+3 FTE)",
         short: "Остаток +3FTE", mid: "Валидация остатка силами +3 FTE",
-        note: "План: провалидировать данные для оставшихся моделей СН-МНГ силами +3 FTE. Финиш контура моделей СН-МНГ — 2-я неделя сентября."
+        note: "План: провалидировать данные для оставшихся моделей СН-МНГ силами +3 FTE. Финиш контура моделей СН-МНГ — конец августа."
+      },
+      {
+        id: "sn-fact-9", stream: "ppd", status: "plan", start: 3.0, end: 3.13,
+        title: "Расчёты кандидатов в ППД (ДО, СПекТР, УБД) по СН-МНГ",
+        short: "ППД", mid: "ППД · ДО/СПекТР/УБД",
+        note: "План (3–4 дня после готовности всех моделей СН-МНГ, конец августа): расчёты кандидатов в переводы в ППД по контурам ДО, СПекТР и УБД."
       }
     ];
 
@@ -804,7 +1071,8 @@
     const overviewStreams = [
       { id: "data", title: "Подготовка данных" },
       { id: "models", title: "Создание и расчёт моделей" },
-      { id: "update", title: "Актуализация моделей" }
+      { id: "update", title: "Актуализация моделей" },
+      { id: "platform", title: "Доработка ИС Б6К" }
     ];
 
     function dosByIds(ids) {
@@ -947,16 +1215,16 @@
         base.title = "ННГ · данные + модели + ППД";
         base.short = "ННГ";
         base.mid = "ННГ: валидация · модели · ППД";
-        base.note = "Факт выполнен: 1) валидация данных всех м-р/пластов; 2) модели всех м-р/пластов; 3) многовариантные расчёты кандидатов в ППД и оценка потенциала.";
-        base.extraNote = { left: "18%", top: "78%", text: "✓ данные · ✓ модели · ✓ расчёты ППД" };
+        base.note = "Факт выполнен: 1) валидация данных всех м-р/пластов; 2) модели всех м-р/пластов; 3) расчёты кандидатов в ППД (ДО, СПекТР, УБД) и оценка потенциала.";
+        base.extraNote = { left: "18%", top: "78%", text: "✓ данные · ✓ модели · ✓ ППД (ДО/СПекТР/УБД)" };
       }
 
       if (d.id === "sn-mng") {
         base.title = "СН-МНГ · 80% добычи + валидация → обновление";
         base.short = "СН-МНГ";
-        base.mid = "СН-МНГ: до 2-й нед. сент.";
-        base.note = "Факт: модели на 80% добычи; валидация Рпл/НГЗ/PVT; согласование с ИТС (карты с 01.2025). Далее: обновить модели под валид. данные; провалидировать остаток (+3 FTE). Финиш подготовки моделей — 2-я неделя сентября.";
-        base.extraNote = { left: "30%", top: "78%", text: "✓ 80% · ✓ карты/PVT · ✓ ИТС → до 2-й нед. сентября" };
+        base.mid = "СН-МНГ: до конца августа";
+        base.note = "Факт: модели на 80% добычи; валидация Рпл/НГЗ/PVT; согласование с ИТС (карты с 01.2025). Далее: обновить модели под валид. данные; провалидировать остаток (+3 FTE). Финиш подготовки моделей — конец августа; затем ППД (ДО, СПекТР, УБД).";
+        base.extraNote = { left: "30%", top: "78%", text: "✓ 80% · ✓ карты/PVT · ✓ ИТС → конец августа → ППД" };
       }
 
       if (d.id === "tn-vnk") {
@@ -1008,8 +1276,8 @@
       title: "ТН-ВНК · ручная подготовка данных (1 мес)",
       short: "ТН данные",
       mid: "ТН-ВНК · вне КСПД (1 мес)",
-      start: 2.43,
-      end: 3.43,
+      start: 2.13,
+      end: 3.13,
       top: "22%",
       kind: "bar",
       icon: "☁",
@@ -1017,8 +1285,133 @@
       note: "Вне КСПД — ручная подготовка данных. Отдельный стрим подготовки данных на 1 месяц перед/к старту моделей Томскнефть.",
       dos: ["tn-vnk"],
       drill: true,
-      extraNote: { left: "38%", top: "8%", text: "ТН-ВНК: вне КСПД — ручная подготовка данных" }
+      extraNote: { left: "34%", top: "8%", text: "ТН-ВНК: вне КСПД — ручная подготовка данных" }
     };
+
+    const ngzCorrectionBar = {
+      id: "data-ngz-fix",
+      stream: "data",
+      company: "Несколько ДО",
+      wave: "Смешанная",
+      scope: "В орг-объеме",
+      status: "plan",
+      title: "Корректировка карт НГЗ: СК + вычищение шумов",
+      short: "НГЗ СК",
+      mid: "Карты НГЗ · СК и шумы",
+      start: 2.55,
+      end: 3.55,
+      top: "38%",
+      kind: "bar",
+      icon: "🗺",
+      color: "#0f766e",
+      note: "Корректировка карт НГЗ с пересчётом системы координат и вычищением шумов.",
+      dos: ["nng", "sn-mng", "tn-vnk", "khantos"],
+      drill: false
+    };
+
+    const snMngPpdBar = {
+      id: "sn-mng-ppd",
+      stream: "models",
+      company: "СН-МНГ",
+      wave: "Top 1",
+      scope: "В орг-объеме",
+      status: "plan",
+      title: "СН-МНГ · расчёты кандидатов в ППД (ДО, СПекТР, УБД)",
+      short: "СН ППД",
+      mid: "СН-МНГ · ППД 3–4 дня",
+      start: 3.0,
+      end: 3.13,
+      top: "12%",
+      kind: "bar",
+      icon: "⚙",
+      color: "#2563eb",
+      note: "После готовности всех моделей СН-МНГ (конец августа): расчёты кандидатов в ППД по контурам ДО, СПекТР и УБД (~3–4 дня).",
+      dos: ["sn-mng"],
+      drill: true
+    };
+
+    const platformTasks = [
+      {
+        id: "plat-autovalid",
+        stream: "platform",
+        company: "ИС Б6К",
+        wave: "Смешанная",
+        scope: "В орг-объеме",
+        status: "plan",
+        title: "Автовалидация и исправление проблемных входных данных",
+        short: "Автовалид.",
+        mid: "Автовалидация вх. данных",
+        start: 2.0,
+        end: 4.0,
+        top: "22%",
+        kind: "bar",
+        icon: "⚒",
+        color: "#4338ca",
+        note: "Разработка системы автовалидации и исправления проблемных входных данных (окно август–сентябрь).",
+        dos: ["nng", "sn-mng", "tn-vnk", "khantos", "vostok", "orenburg"],
+        drill: false
+      },
+      {
+        id: "plat-sn-time",
+        stream: "platform",
+        company: "ИС Б6К",
+        wave: "Top 1",
+        scope: "В орг-объеме",
+        status: "plan",
+        title: "Корректировка времени в работе + в накоплении по СН-МНГ",
+        short: "Время СН",
+        mid: "Время в работе/накоплении · СН-МНГ",
+        start: 3.85,
+        end: 4.0,
+        top: "48%",
+        kind: "bar",
+        icon: "⏱",
+        color: "#2563eb",
+        note: "Корректировка учёта времени в работе и в накоплении по СН-МНГ — целевой финиш конец сентября.",
+        dos: ["sn-mng"],
+        drill: false
+      },
+      {
+        id: "plat-system",
+        stream: "platform",
+        company: "ИС Б6К",
+        wave: "Смешанная",
+        scope: "В орг-объеме",
+        status: "plan",
+        title: "Системный подход ко всем ДО",
+        short: "Сист. подход",
+        mid: "Системный подход · все ДО",
+        start: 4.05,
+        end: 4.5,
+        top: "72%",
+        kind: "bar",
+        icon: "▣",
+        color: "#0f766e",
+        note: "Системный подход ко всем ДО — после Q3 (после сентября). Детали — на вкладке «Системный подход».",
+        dos: ["spd", "nng", "sn-mng", "tn-vnk", "khantos", "vostok", "orenburg"],
+        drill: false
+      },
+      {
+        id: "plat-scale-2027",
+        stream: "platform",
+        company: "ИС Б6К",
+        wave: "Смешанная",
+        scope: "В орг-объеме",
+        status: "plan",
+        title: "Инфраструктура к массовым расчётам 2027 · ×3 (150 польз.)",
+        short: "×3 мощн.",
+        mid: "Инфра 2027 · ×3 / 150 польз.",
+        start: 5.2,
+        end: 6.5,
+        top: "48%",
+        kind: "bar",
+        icon: "⬆",
+        color: "#7c3aed",
+        note: "Подготовка инфраструктуры к массовым расчётам к 2027: целевой вариант ×3 мощности (150 пользователей).",
+        dos: ["spd", "nng", "sn-mng", "tn-vnk", "khantos", "vostok", "orenburg"],
+        drill: false
+      }
+    ];
 
     const dataWindows = [
       { id: "data-w1", title: "Подготовка данных · волна 1 (ННГ / СН-МНГ)", short: "Подг. в1", mid: "Подготовка · ННГ/СН-МНГ", start: 0.9, end: 2.45, top: "55%", dosFixed: ["nng", "sn-mng"] },
@@ -1095,7 +1488,7 @@
       };
     }
 
-    const overviewTasks = [...dataWindows, tnVnkDataBar, ...modelStarts, ...updateNodes];
+    const overviewTasks = [...dataWindows, tnVnkDataBar, ngzCorrectionBar, ...modelStarts, snMngPpdBar, ...platformTasks, ...updateNodes];
     const detailViews = {};
     DOS.forEach(d => {
       const extras = {};
@@ -1133,19 +1526,19 @@
         {
           id: "tn-data-1", stream: "manual", company: "ТН-ВНК", wave: "Top 2", scope: "В орг-объеме", status: "plan",
           title: "Ручной сбор и подготовка данных вне КСПД", short: "Вне КСПД", mid: "Ручная подготовка вне КСПД",
-          start: 2.43, end: 3.05, kind: "bar", icon: "☁",
+          start: 2.13, end: 2.75, kind: "bar", icon: "☁",
           note: "Вне КСПД — ручная подготовка данных.", dos: ["tn-vnk"]
         },
         {
           id: "tn-data-2", stream: "format", company: "ТН-ВНК", wave: "Top 2", scope: "В орг-объеме", status: "plan",
           title: "Нормализация и формат под модели", short: "Формат", mid: "Приведение к формату",
-          start: 2.75, end: 3.25, kind: "bar", icon: "▦",
+          start: 2.45, end: 2.95, kind: "bar", icon: "▦",
           note: "Подготовка массивов к сборке моделей Томскнефть.", dos: ["tn-vnk"]
         },
         {
           id: "tn-data-3", stream: "handoff", company: "ТН-ВНК", wave: "Top 2", scope: "В орг-объеме", status: "plan",
           title: "Передача в контур подготовки моделей (1,5 мес)", short: "Передача", mid: "Handoff в модели",
-          start: 3.15, end: 3.43, kind: "bar", icon: "→",
+          start: 2.85, end: 3.13, kind: "bar", icon: "→",
           note: "Старт подготовки моделей ТН-ВНК сразу после ручного контура данных.", dos: ["tn-vnk"]
         }
       ]
@@ -1169,10 +1562,12 @@
         { id: "validate", title: "Валидация карт / PVT" },
         { id: "its", title: "Аналитика с ИТС" },
         { id: "update", title: "Обновление моделей" },
-        { id: "remain", title: "Остаток моделей (+3 FTE)" }
+        { id: "remain", title: "Остаток моделей (+3 FTE)" },
+        { id: "ppd", title: "Расчёты переводов в ППД" }
       ],
       FACT_SNMNG
     );
+    detailViews["sn-mng-ppd"] = detailViews["sn-mng"];
 
     // Обогащаем общий drill подготовки данных фактами по ННГ/СН-МНГ
     dataWindows.forEach(t => {
@@ -1200,8 +1595,8 @@
           {
             id: "data-w1-sn-remain", stream: "sn-mng", company: "СН-МНГ", wave: "Top 1", scope: "В орг-объеме", status: "plan",
             title: "Провалидировать данные оставшихся моделей СН-МНГ (+3 FTE)", short: "+3 FTE", mid: "Остаток данных +3 FTE",
-            start: 2.7, end: 3.43, kind: "bar", icon: "○",
-            note: "План: валидация данных для оставшихся моделей СН-МНГ силами +3 FTE (до 2-й недели сентября).", dos: ["sn-mng"]
+            start: 2.7, end: 3.0, kind: "bar", icon: "○",
+            note: "План: валидация данных для оставшихся моделей СН-МНГ силами +3 FTE (до конца августа).", dos: ["sn-mng"]
           }
         ];
       }
@@ -1772,6 +2167,29 @@
     renderZoomPresets();
     syncViewWindow();
     renderAll();
+
+    // —— Верхние вкладки ——
+    const tabButtons = document.querySelectorAll(".top-tab");
+    const viewGantt = document.getElementById("view-gantt");
+    const viewStats = document.getElementById("view-stats");
+    const viewApproach = document.getElementById("view-approach");
+    let statsLoaded = false;
+
+    function switchTab(tab) {
+      tabButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+      viewGantt.hidden = tab !== "gantt";
+      viewStats.hidden = tab !== "stats";
+      viewApproach.hidden = tab !== "approach";
+      if (tab === "stats" && !statsLoaded && typeof window.initModelsStats === "function") {
+        statsLoaded = true;
+        window.initModelsStats(document.getElementById("statsRoot"));
+      }
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
   </script>
+  <script src="stats.js"></script>
 </body>
 </html>
