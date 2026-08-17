@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ДК Б6К — диаграмма Ганта</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <style>
     :root {
       --bg: #eef2f7;
@@ -727,6 +728,93 @@
       border: 1px dashed var(--border); border-radius: 12px;
     }
     .stats-error { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: 200px minmax(240px, 1fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+      margin-bottom: 22px;
+    }
+    .summary-main { text-align: center; }
+    .summary-caption {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .summary-kpis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .summary-kpis .kpi-card { text-align: left; padding: 12px; }
+    .summary-dos { display: grid; gap: 10px; }
+    .summary-do {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .summary-do-name { font-weight: 700; font-size: 14px; }
+    .summary-do-meta { font-size: 12px; color: var(--muted); line-height: 1.35; }
+    .stats-map-block { margin-bottom: 8px; }
+    .map-toolbar { display: flex; gap: 8px; margin-left: auto; }
+    .map-toolbar button {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #334155;
+    }
+    .map-toolbar button:hover { background: #f1f5f9; }
+    .donut-card { cursor: pointer; }
+    .stats-map {
+      height: 580px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #e8eef4;
+    }
+    .map-donut-icon {
+      background: none !important;
+      border: none !important;
+    }
+    .map-donut {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      filter: drop-shadow(0 2px 5px rgba(15,23,42,.28));
+      cursor: pointer;
+    }
+    .map-donut-label {
+      display: none;
+      font-size: 9px;
+      font-weight: 700;
+      color: #0f172a;
+      text-shadow: 0 0 4px #fff, 0 1px 6px #fff;
+      white-space: nowrap;
+      max-width: 92px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: -1px;
+      pointer-events: none;
+    }
+    .map-labels-on .map-donut-label { display: block; }
+    .leaflet-popup-content { font-size: 12px; line-height: 1.4; }
+    .leaflet-popup-content strong { font-size: 13px; }
+    @media (max-width: 1100px) {
+      .stats-summary { grid-template-columns: 1fr; }
+    }
 
     /* —— Approach slide —— */
     .approach-slide {
@@ -2180,9 +2268,13 @@
       viewGantt.hidden = tab !== "gantt";
       viewStats.hidden = tab !== "stats";
       viewApproach.hidden = tab !== "approach";
-      if (tab === "stats" && !statsLoaded && typeof window.initModelsStats === "function") {
-        statsLoaded = true;
-        window.initModelsStats(document.getElementById("statsRoot"));
+      if (tab === "stats") {
+        if (!statsLoaded && typeof window.initModelsStats === "function") {
+          statsLoaded = true;
+          window.initModelsStats(document.getElementById("statsRoot"));
+        } else if (typeof window.invalidateStatsMap === "function") {
+          window.invalidateStatsMap();
+        }
       }
     }
 
@@ -2190,6 +2282,7 @@
       btn.addEventListener("click", () => switchTab(btn.dataset.tab));
     });
   </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="stats.js"></script>
 </body>
 </html>
